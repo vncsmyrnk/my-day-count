@@ -1,4 +1,4 @@
-#[derive(PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 enum Month {
     January,
     February,
@@ -50,23 +50,32 @@ impl Month {
     }
 }
 
+#[derive(Debug, PartialEq, Eq)]
 struct Date {
     day: u8,
     month: Month,
     year: u32,
 }
 
-impl PartialEq for Date {
-    fn eq(&self, other: &Self) -> bool {
-        self.day == other.day && self.month == other.month && self.year == other.year
+use std::cmp::Ordering;
+
+impl PartialOrd for Date {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
     }
 }
 
-// impl PartialOrd for Date {
-//     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-//        Some(self.year.partial_cmp(other.year.partial_cmp(other)))
-//     }
-// }
+impl Ord for Date {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match self.year.cmp(&other.year) {
+            Ordering::Equal => match self.month.cmp(&other.month) {
+                Ordering::Equal => self.day.cmp(&other.day),
+                other => other,
+            },
+            other => other,
+        }
+    }
+}
 
 impl Date {
     fn days_in_month(&self) -> u8 {
